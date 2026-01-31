@@ -1,0 +1,19 @@
+{
+  "name": "linkedin-language-detector",
+  "version": "1.0.0",
+  "description": "Chrome extension to detect and display language of LinkedIn job postings",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "bun test",
+    "build": "zip -r linkedin-language-detector.zip manifest.json src/",
+    "lint": "bun run eslint src/ tests/"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "eld": "^2.0.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
