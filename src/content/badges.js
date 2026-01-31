@@ -1,6 +1,7 @@
 const BADGE_CLASS = 'li-lang-badge';
 
 export function createBadge(languageCode) {
+  console.log(`[LinkedIn Language Detector] 创建徽章: ${languageCode}`);
   const badge = document.createElement('span');
   badge.className = BADGE_CLASS;
   badge.textContent = languageCode.toUpperCase();
@@ -25,6 +26,7 @@ export function createBadge(languageCode) {
 }
 
 export function injectBadge(jobCard, badge) {
+  console.log('[LinkedIn Language Detector] 尝试注入徽章');
   const titleSelectors = [
     '.job-card-list__title',
     '.artdeco-entity-lockup__title',
@@ -35,14 +37,19 @@ export function injectBadge(jobCard, badge) {
   for (const selector of titleSelectors) {
     const titleElement = jobCard.querySelector(selector);
     if (titleElement) {
+      console.log(`[LinkedIn Language Detector] 找到标题元素: ${selector}`);
       const existingBadge = titleElement.querySelector('.' + BADGE_CLASS);
       if (!existingBadge) {
         titleElement.appendChild(badge);
+        console.log('[LinkedIn Language Detector] 徽章已注入');
+      } else {
+        console.log('[LinkedIn Language Detector] 徽章已存在，跳过');
       }
       return;
     }
   }
   
+  console.log('[LinkedIn Language Detector] 未找到标题元素，使用绝对定位');
   jobCard.style.position = 'relative';
   badge.style.cssText += 'position: absolute; top: 8px; right: 8px;';
   jobCard.appendChild(badge);

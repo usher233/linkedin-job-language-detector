@@ -17,8 +17,12 @@ const processedCards = new Set();
 function findJobCards() {
   for (const selector of JOB_CARD_SELECTORS) {
     const cards = document.querySelectorAll(selector);
-    if (cards.length > 0) return Array.from(cards);
+    if (cards.length > 0) {
+      console.log(`[LinkedIn Language Detector] 找到 ${cards.length} 个职位卡片 (使用选择器: ${selector})`);
+      return Array.from(cards);
+    }
   }
+  console.log('[LinkedIn Language Detector] 未找到任何职位卡片');
   return [];
 }
 
@@ -26,9 +30,12 @@ function extractDescription(jobCard) {
   for (const selector of DESCRIPTION_SELECTORS) {
     const element = jobCard.querySelector(selector);
     if (element) {
-      return element.textContent.trim();
+      const text = element.textContent.trim();
+      console.log(`[LinkedIn Language Detector] 提取到描述 (${text.length} 字符): ${text.substring(0, 100)}...`);
+      return text;
     }
   }
+  console.log('[LinkedIn Language Detector] 未找到职位描述');
   return '';
 }
 
@@ -54,18 +61,35 @@ function debounce(fn, ms) {
 }
 
 export function initObserver(onJobCardDetected) {
+  console.log('[LinkedIn Language Detector] 观察者已启动');
+  
   const processCards = () => {
     const cards = findJobCards();
+    console.log(`[LinkedIn Language Detector] 开始处理 ${cards.length} 个卡片`);
     
-    cards.forEach(card => {
+    cards.forEach((card, index) => {
       const jobId = getJobId(card);
-      if (!jobId || processedCards.has(jobId)) return;
+      console.log(`[LinkedIn Language Detector] 处理卡片 ${index + 1}/${cards.length}, jobId: ${jobId}`);
+      
+      if (!jobId) {
+        console.log('[LinkedIn Language Detector] 跳过: 没有 jobId');
+        return;
+      }
+      
+      if (processedCards.has(jobId)) {
+        console.log(`[LinkedIn Language Detector] 跳过: 已处理过 ${jobId}`);
+        return;
+      }
       
       const description = extractDescription(card);
-      if (description.length >= 50) {
-        processedCards.add(jobId);
-        onJobCardDetected(card, description);
+      if (description.length < 50) {
+        console.log(`[LinkedIn Language Detector] 跳过: 描述太短 (${description.length} 字符)`);
+        return;
       }
+      
+      console.log(`[LinkedIn Language Detector] 处理职位 ${jobId}, 准备检测语言`);
+      processedCards.add(jobId);
+      onJobCardDetected(card, description);
     });
   };
   
@@ -83,6 +107,7 @@ export function initObserver(onJobCardDetected) {
     );
     
     if (hasNewNodes) {
+      console.log('[LinkedIn Language Detector] 检测到新节点，重新处理');
       debouncedProcess();
     }
   });
